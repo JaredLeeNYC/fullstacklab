@@ -3,7 +3,8 @@ import PropTypes from "prop-types";
 import { View, StyleSheet } from "react-native";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import * as actions from "../actions/nodes";
+import * as nodesActions from "../actions/nodes";
+import * as blocksActions from "../actions/blocks";
 import Node from "../components/Node";
 import { Heading } from "material-bread";
 
@@ -23,11 +24,13 @@ export class Nodes extends React.Component {
   toggleNodeExpanded(node) {
     this.setState({
       expandedNodeURL: node.url === this.state.expandedNodeURL ? null : node.url
+    }, ()=>{
+      this.props.actions.fetchBlocks(node)
     });
   }
 
   render() {
-    const { nodes } = this.props;
+    const { nodes, blocks } = this.props;
     return (
       <View>
         <Heading style={styles.heading} type={4}>
@@ -36,6 +39,7 @@ export class Nodes extends React.Component {
         {nodes.list.map(node => (
           <Node
             node={node}
+            blocks={blocks}
             key={node.url}
             expanded={node.url === this.state.expandedNodeURL}
             toggleNodeExpanded={this.toggleNodeExpanded}
@@ -56,13 +60,14 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
-    nodes: state.nodes
+    nodes: state.nodes,
+    blocks: state.blocks
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(actions, dispatch)
+    actions: bindActionCreators({...nodesActions, ...blocksActions}, dispatch)
   };
 }
 
